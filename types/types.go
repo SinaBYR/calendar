@@ -34,3 +34,8 @@ type DeleteTodoRequest struct {
 type CompleteTodoRequest struct {
 	ID int64 `param:"id"`
 }
+
+type GetTodoRequest struct {
+	ID   int64 `param:"id"`
+	User bool  `query:"user"`
+}

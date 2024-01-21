@@ -19,6 +19,7 @@ func main() {
 	e.PUT("/users/:id", routes.UpdateUser)
 	e.DELETE("/users/:id", routes.DeleteUser)
 
+	e.GET("/todos/:id", routes.GetTodo)
 	e.POST("/todos/create", routes.CreateTodo)
 	e.PUT("/todos/:id", routes.CompleteTodo)
 	e.DELETE("/todos/:id", routes.DeleteTodo)
