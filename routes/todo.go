@@ -3,7 +3,6 @@ package routes
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"example.com/golang-crud-gorm/db"
 	"example.com/golang-crud-gorm/models"
@@ -20,21 +19,26 @@ func GetTodo(c echo.Context) {}
 func GetTodos() {}
 
 func CreateTodo(c echo.Context) error {
-	todo := models.Todo{Done: false, CreatedAt: time.Now().UnixMilli()}
-	err := c.Bind(&todo)
+	var reqTodo types.CreateTodoRequest
+	err := c.Bind(&reqTodo)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, types.ResponseMessage{Message: "Internal Server Error"})
 	} else {
-		fmt.Printf("CreateTodo: %+v\n", todo)
+		fmt.Printf("CreateTodo: %+v\n", reqTodo)
 	}
 
-	if len(todo.Name) == 0 {
+	if len(reqTodo.Name) == 0 {
 		return c.JSON(http.StatusBadRequest, types.ResponseMessage{Message: "Todo name is required"})
 	}
 
-	fmt.Printf("%d\n", todo.UserID)
-	if todo.UserID == 0 {
+	if reqTodo.UserID == 0 {
 		return c.JSON(http.StatusBadRequest, types.ResponseMessage{Message: "Todo userId is required"})
+	}
+
+	todo := models.Todo{
+		Name:   reqTodo.Name,
+		UserID: reqTodo.UserID,
+		Done:   reqTodo.Done,
 	}
 
 	result := db.DB().Omit("ID").Create(&todo)
