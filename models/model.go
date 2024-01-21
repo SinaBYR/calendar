@@ -10,13 +10,9 @@ type User struct {
 }
 
 type Todo struct {
-	ID         int64  `gorm:"<-:false;primaryKey"`
-	Name       string `gorm:"type:varchar(100) not null"`
-	Done       bool
-	UserID     int64 `gorm:"->;<-:create"`
-	User       User  `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	CreatedAt  int64 `gorm:"autoCreateTime:milli"`
-	FinishedAt sql.NullTime
-}
-type S struct {
+	ID     int64  `gorm:"<-:false;primaryKey"`
+	Name   string `gorm:"type:varchar(100) not null"`
+	Done   bool
+	UserID int64 `gorm:"->;<-:create"`
+	User   User  `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
