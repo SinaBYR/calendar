@@ -26,3 +26,7 @@ type CreateTodoRequest struct {
 	Done   bool   `json:"done"`
 	UserID int64  `json:"userId"`
 }
+
+type DeleteTodoRequest struct {
+	ID int64 `param:"id"`
+}

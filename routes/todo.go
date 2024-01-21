@@ -12,10 +12,6 @@ import (
 
 func GetTodo(c echo.Context) {}
 
-// func hello(c echo.Context) error {
-// 	return c.String(http.StatusOK, "Hello World")
-// }
-
 func GetTodos() {}
 
 func CreateTodo(c echo.Context) error {
@@ -50,6 +46,27 @@ func CreateTodo(c echo.Context) error {
 	return c.JSON(http.StatusCreated, types.ResponseMessage{Message: "Todo created successfully", Data: struct{ ID int64 }{ID: todo.ID}})
 }
 
-func DeleteTodo() {}
+func DeleteTodo(c echo.Context) error {
+	var reqTodo types.DeleteTodoRequest
+
+	err := c.Bind(&reqTodo)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, types.ResponseMessage{Message: "Internal Server Error"})
+	} else {
+		fmt.Printf("DeleteTodo: %v\n", reqTodo)
+	}
+
+	if reqTodo.ID == 0 {
+		return c.JSON(http.StatusBadRequest, types.ResponseMessage{Message: "Todo id is required"})
+	}
+
+	result := db.DB().Delete(&models.Todo{}, reqTodo.ID)
+
+	if result.Error != nil {
+		return c.JSON(http.StatusInternalServerError, types.ResponseMessage{Message: "Internal Server Error"})
+	}
+
+	return c.JSON(http.StatusNoContent, nil)
+}
 
 func CompleteTodo() {}

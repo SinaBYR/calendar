@@ -20,6 +20,7 @@ func main() {
 	e.DELETE("/users/:id", routes.DeleteUser)
 
 	e.POST("/todos/create", routes.CreateTodo)
+	e.DELETE("/todos/:id", routes.DeleteTodo)
 
 	e.Logger.Fatal(e.Start(":8000"))
 }
