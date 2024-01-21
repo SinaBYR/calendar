@@ -69,4 +69,25 @@ func DeleteTodo(c echo.Context) error {
 	return c.JSON(http.StatusNoContent, nil)
 }
 
-func CompleteTodo() {}
+func CompleteTodo(c echo.Context) error {
+	var reqTodo types.CompleteTodoRequest
+
+	err := c.Bind(&reqTodo)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, types.ResponseMessage{Message: "Internal Server Error"})
+	} else {
+		fmt.Printf("CompleteTodo: %v\n", reqTodo)
+	}
+
+	if reqTodo.ID == 0 {
+		return c.JSON(http.StatusBadRequest, types.ResponseMessage{Message: "Todo id is required"})
+	}
+
+	result := db.DB().Model(&models.Todo{ID: reqTodo.ID}).Select("Done").Updates(map[string]interface{}{"done": true})
+
+	if result.Error != nil {
+		return c.JSON(http.StatusInternalServerError, types.ResponseMessage{Message: "Internal Server Error"})
+	}
+
+	return c.JSON(http.StatusNoContent, nil)
+}

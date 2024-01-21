@@ -30,3 +30,7 @@ type CreateTodoRequest struct {
 type DeleteTodoRequest struct {
 	ID int64 `param:"id"`
 }
+
+type CompleteTodoRequest struct {
+	ID int64 `param:"id"`
+}
