@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -8,6 +9,7 @@ import (
 	"example.com/golang-crud-gorm/models"
 	"example.com/golang-crud-gorm/types"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 func GetTodo(c echo.Context) error {
@@ -17,69 +19,46 @@ func GetTodo(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, types.ResponseMessage{Message: "Internal Server Error"})
 	} else {
-		fmt.Printf("CreateTodo: %+v\n", reqTodo)
+		fmt.Printf("GetTodo: %+v\n", reqTodo)
 	}
 
 	if reqTodo.ID == 0 {
 		return c.JSON(http.StatusBadRequest, types.ResponseMessage{Message: "Todo id is required"})
 	}
 
-	var todo = models.Todo{ID: reqTodo.ID}
+	var todo = types.Todo{}
 
-	result := db.DB().Omit("User").First(&todo)
+	result := db.DB().Where(&types.Todo{ID: reqTodo.ID}).First(&todo)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return c.JSON(http.StatusNotFound, types.ResponseMessage{Message: fmt.Sprintf("resource not found")})
+	}
+
+	return c.JSON(http.StatusOK, types.ResponseMessage{
+		Data: todo,
+	})
+}
+
+func GetTodos(c echo.Context) error {
+	var reqTodo types.GetTodosRequest
+	err := c.Bind(&reqTodo)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, types.ResponseMessage{Message: "Internal Server Error"})
+	} else {
+		fmt.Printf("GetTodos: %+v\n", reqTodo)
+	}
+
+	var todos []types.Todo
+
+	result := db.DB().Find(&todos)
+
 	if result.Error != nil {
 		return c.JSON(http.StatusInternalServerError, types.ResponseMessage{Message: "Internal Server Error"})
 	}
 
-	var user = models.User{ID: todo.UserID}
-
-	if reqTodo.User {
-		result := db.DB().Omit("ID").First(&user)
-		if result.Error != nil {
-			return c.JSON(http.StatusInternalServerError, types.ResponseMessage{Message: "Internal Server Error"})
-		}
-
-		type returnedUser struct {
-			ID        int64  `json:"id"`
-			UserName  string `json:"username"`
-			FirstName string `json:"firstname"`
-			LastName  string `json:"lastname"`
-		}
-
-		return c.JSON(http.StatusOK, types.ResponseMessage{
-			Data: struct {
-				ID   int64
-				Name string
-				Done bool
-				User returnedUser
-			}{
-				ID:   todo.ID,
-				Name: todo.Name,
-				Done: todo.Done,
-				User: returnedUser{
-					ID:        user.ID,
-					UserName:  user.UserName,
-					FirstName: user.FirstName.String,
-					LastName:  user.LastName.String,
-				},
-			},
-		})
-	} else {
-		return c.JSON(http.StatusOK, types.ResponseMessage{
-			Data: struct {
-				ID   int64
-				Name string
-				Done bool
-			}{
-				ID:   todo.ID,
-				Name: todo.Name,
-				Done: todo.Done,
-			},
-		})
-	}
+	return c.JSON(http.StatusOK, types.ResponseMessage{
+		Data: todos,
+	})
 }
-
-func GetTodos() {}
 
 func CreateTodo(c echo.Context) error {
 	var reqTodo types.CreateTodoRequest
@@ -98,10 +77,9 @@ func CreateTodo(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, types.ResponseMessage{Message: "Todo userId is required"})
 	}
 
-	todo := models.Todo{
-		Name:   reqTodo.Name,
-		UserID: reqTodo.UserID,
-		Done:   reqTodo.Done,
+	todo := types.Todo{
+		Name: reqTodo.Name,
+		Done: reqTodo.Done,
 	}
 
 	result := db.DB().Omit("ID").Create(&todo)
@@ -110,7 +88,7 @@ func CreateTodo(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, types.ResponseMessage{Message: "Internal Server Error"})
 	}
 
-	return c.JSON(http.StatusCreated, types.ResponseMessage{Message: "Todo created successfully", Data: struct{ ID int64 }{ID: todo.ID}})
+	return c.JSON(http.StatusCreated, types.ResponseMessage{Message: "Todo created successfully", Data: todo})
 }
 
 func DeleteTodo(c echo.Context) error {
@@ -127,7 +105,7 @@ func DeleteTodo(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, types.ResponseMessage{Message: "Todo id is required"})
 	}
 
-	result := db.DB().Delete(&models.Todo{}, reqTodo.ID)
+	result := db.DB().Delete(&types.Todo{}, reqTodo.ID)
 
 	if result.Error != nil {
 		return c.JSON(http.StatusInternalServerError, types.ResponseMessage{Message: "Internal Server Error"})
