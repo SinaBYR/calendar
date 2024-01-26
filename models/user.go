@@ -7,5 +7,5 @@ type User struct {
 	UserName  string         `gorm:"type:varchar(100) not null unique"`
 	FirstName sql.NullString `gorm:"type:varchar(50)"`
 	LastName  sql.NullString `gorm:"type:varchar(50)"`
-	Password  string         `gorm:"type:varchar(50) not null"`
+	Password  string         `gorm:"type:varchar(100) not null"`
 }
