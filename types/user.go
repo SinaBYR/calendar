@@ -9,12 +9,6 @@ type User struct {
 	LastName  sql.NullString `json:"lastname"`
 }
 
-type CreateUserRequest struct {
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	UserName  string `json:"userName"`
-}
-
 type UpdateUserRequest struct {
 	ID        int64  `param:"id"`
 	FirstName string `json:"firstName"`

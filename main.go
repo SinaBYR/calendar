@@ -13,13 +13,16 @@ func main() {
 	// 	log.Fatal(err)
 	// }
 
-	// db.DB().AutoMigrate(&models.Todo{})
-
 	e := echo.New()
 
-	e.POST("/users/create", routes.CreateUser)
-	e.PUT("/users/:id", routes.UpdateUser)
-	e.DELETE("/users/:id", routes.DeleteUser)
+	authRouter := e.Group("/auth")
+
+	authRouter.POST("/register", routes.Register)
+
+	userRouter := e.Group("/users")
+
+	userRouter.PUT("/:id", routes.UpdateUser)
+	userRouter.DELETE("/:id", routes.DeleteUser)
 
 	todoRouter := e.Group("/todos")
 	todoRouter.Use(middleware.Logger)
