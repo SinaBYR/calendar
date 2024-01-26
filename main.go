@@ -3,6 +3,7 @@ package main
 import (
 	"example.com/golang-crud-gorm/routes"
 	"github.com/labstack/echo/v4"
+	echoMiddleware "github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
@@ -19,11 +20,13 @@ func main() {
 	e.PUT("/users/:id", routes.UpdateUser)
 	e.DELETE("/users/:id", routes.DeleteUser)
 
-	e.GET("/todos", routes.GetTodos)
-	e.GET("/todos/:id", routes.GetTodo)
-	e.POST("/todos/create", routes.CreateTodo)
-	e.PUT("/todos/:id", routes.CompleteTodo)
-	e.DELETE("/todos/:id", routes.DeleteTodo)
+	todoRouter := e.Group("/todos")
+
+	todoRouter.GET("", routes.GetTodos, echoMiddleware.AddTrailingSlash()) // it won't work if you add slash
+	todoRouter.GET("/:id", routes.GetTodo)
+	todoRouter.POST("/create", routes.CreateTodo)
+	todoRouter.PUT("/:id", routes.CompleteTodo)
+	todoRouter.DELETE("/:id", routes.DeleteTodo)
 
 	e.Logger.Fatal(e.Start(":8000"))
 }

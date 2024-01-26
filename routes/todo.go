@@ -17,7 +17,7 @@ func GetTodo(c echo.Context) error {
 
 	err := c.Bind(&reqTodo)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, types.ResponseMessage{Message: "Internal Server Error"})
+		return c.JSON(http.StatusInternalServerError, types.ResponseMessage{Message: "Internal Server Errorr"})
 	} else {
 		fmt.Printf("GetTodo: %+v\n", reqTodo)
 	}
